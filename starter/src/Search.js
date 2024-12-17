@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Book from "./Book";
 
-function Search({ query, onSearch, onClose, searchResults, onShelfChange }) {
+function Search({ onSearch, searchResults, onShelfChange, books }) {
+  const [query, setQuery] = useState("");
+
   const handleChange = (e) => {
-    onSearch(e.target.value);
+    const value = e.target.value;
+    setQuery(value);
+    onSearch(value);
   };
 
   return (
     <div className="search-books">
       <div className="search-books-bar">
-        <a className="close-search" onClick={onClose}>
+        <Link to="/" className="close-search">
           Close
-        </a>
+        </Link>
         <div className="search-books-input-wrapper">
           <input
             type="text"
@@ -26,13 +31,7 @@ function Search({ query, onSearch, onClose, searchResults, onShelfChange }) {
           {searchResults.length > 0 &&
             searchResults.map((book) => (
               <li key={book.id}>
-                <Book 
-                  book={{
-                    ...book,
-                    shelf: book.shelf || 'none'
-                  }} 
-                  onShelfChange={onShelfChange} 
-                />
+                <Book book={book} onShelfChange={onShelfChange} />
               </li>
             ))}
         </ol>

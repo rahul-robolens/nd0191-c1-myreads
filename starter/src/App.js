@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { getAll, search, update } from "./BooksAPI";
 import Search from "./Search";
 import Bookshelf from "./Bookshelf";
 import "./App.css";
 
 function App() {
-  const [showSearchPage, setShowSearchPage] = useState(false);
   const [books, setBooks] = useState([]); 
   const [searchResults, setSearchResults] = useState([]);
 
@@ -16,7 +16,9 @@ function App() {
   const handleSearch = (query) => {
     if (query.trim()) {
       search(query).then((result) => {
+        // Check if result is an array and not an error
         if (Array.isArray(result)) {
+          // Map search results to include shelf information from existing books
           const updatedSearchResults = result.map(searchBook => {
             const existingBook = books.find(book => book.id === searchBook.id);
             return {
@@ -26,9 +28,11 @@ function App() {
           });
           setSearchResults(updatedSearchResults);
         } else {
+          // Handle case where search returns an error or empty result
           setSearchResults([]);
         }
       }).catch(() => {
+        // Handle any network or API errors
         setSearchResults([]);
       });
     } else {
@@ -41,54 +45,56 @@ function App() {
       getAll().then((books) => {
         setBooks(books);
         
-        if (showSearchPage) {
-          const updatedSearchResults = searchResults.map(searchBook => 
-            searchBook.id === book.id ? { ...searchBook, shelf } : searchBook
-          );
-          setSearchResults(updatedSearchResults);
-        }
+        // Update shelf in search results 
+        const updatedSearchResults = searchResults.map(searchBook => 
+          searchBook.id === book.id ? { ...searchBook, shelf } : searchBook
+        );
+        setSearchResults(updatedSearchResults);
       });
     });
   };
 
   return (
-    <div className="app">
-      {showSearchPage ? (
-        <Search
-          query={searchResults.query}
-          onSearch={handleSearch}
-          onClose={() => setShowSearchPage(false)}
-          searchResults={searchResults}
-          onShelfChange={handleShelfChange}
-        />
-      ) : (
-        <div className="list-books">
-          <div className="list-books-title">
-            <h1>MyReads</h1>
+    <Router>
+      <div className="app">
+        <Route exact path="/">
+          <div className="list-books">
+            <div className="list-books-title">
+              <h1>MyReads</h1>
+            </div>
+            <div className="list-books-content">
+              <Bookshelf
+                shelf="currentlyReading"
+                books={books}
+                onShelfChange={handleShelfChange}
+              />
+              <Bookshelf
+                shelf="wantToRead"
+                books={books}
+                onShelfChange={handleShelfChange}
+              />
+              <Bookshelf
+                shelf="read"
+                books={books}
+                onShelfChange={handleShelfChange}
+              />
+            </div>
+            <div className="open-search">
+              <Link to="/search">Add a book</Link>
+            </div>
           </div>
-          <div className="list-books-content">
-            <Bookshelf
-              shelf="currentlyReading"
-              books={books}
-              onShelfChange={handleShelfChange}
-            />
-            <Bookshelf
-              shelf="wantToRead"
-              books={books}
-              onShelfChange={handleShelfChange}
-            />
-            <Bookshelf
-              shelf="read"
-              books={books}
-              onShelfChange={handleShelfChange}
-            />
-          </div>
-          <div className="open-search">
-            <a onClick={() => setShowSearchPage(true)}>Add a book</a>
-          </div>
-        </div>
-      )}
-    </div>
+        </Route>
+        <Route path="/search">
+          <Search
+            query=""
+            onSearch={handleSearch}
+            searchResults={searchResults}
+            onShelfChange={handleShelfChange}
+            books={books}
+          />
+        </Route>
+      </div>
+    </Router>
   );
 }
 
