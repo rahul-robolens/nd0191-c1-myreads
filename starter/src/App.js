@@ -15,7 +15,22 @@ function App() {
 
   const handleSearch = (query) => {
     if (query.trim()) {
-      search(query).then((result) => setSearchResults(result));
+      search(query).then((result) => {
+        if (Array.isArray(result)) {
+          const updatedSearchResults = result.map(searchBook => {
+            const existingBook = books.find(book => book.id === searchBook.id);
+            return {
+              ...searchBook,
+              shelf: existingBook ? existingBook.shelf : 'none'
+            };
+          });
+          setSearchResults(updatedSearchResults);
+        } else {
+          setSearchResults([]);
+        }
+      }).catch(() => {
+        setSearchResults([]);
+      });
     } else {
       setSearchResults([]);
     }
@@ -23,7 +38,16 @@ function App() {
 
   const handleShelfChange = (book, shelf) => {
     update(book, shelf).then(() => {
-      getAll().then((books) => setBooks(books));
+      getAll().then((books) => {
+        setBooks(books);
+        
+        if (showSearchPage) {
+          const updatedSearchResults = searchResults.map(searchBook => 
+            searchBook.id === book.id ? { ...searchBook, shelf } : searchBook
+          );
+          setSearchResults(updatedSearchResults);
+        }
+      });
     });
   };
 

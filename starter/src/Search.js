@@ -26,7 +26,13 @@ function Search({ query, onSearch, onClose, searchResults, onShelfChange }) {
           {searchResults.length > 0 &&
             searchResults.map((book) => (
               <li key={book.id}>
-                <Book book={book} onShelfChange={onShelfChange} />
+                <Book 
+                  book={{
+                    ...book,
+                    shelf: book.shelf || 'none'
+                  }} 
+                  onShelfChange={onShelfChange} 
+                />
               </li>
             ))}
         </ol>
