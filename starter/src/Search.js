@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Book from "./Book";
 
-function Search({ onSearch, searchResults, onShelfChange, books }) {
+function Search({ onSearch, searchResults, onShelfChange}) {
   const [query, setQuery] = useState("");
 
   const handleChange = (e) => {

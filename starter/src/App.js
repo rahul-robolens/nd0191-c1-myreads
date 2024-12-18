@@ -16,9 +16,7 @@ function App() {
   const handleSearch = (query) => {
     if (query.trim()) {
       search(query).then((result) => {
-        // Check if result is an array and not an error
         if (Array.isArray(result)) {
-          // Map search results to include shelf information from existing books
           const updatedSearchResults = result.map(searchBook => {
             const existingBook = books.find(book => book.id === searchBook.id);
             return {
@@ -28,11 +26,9 @@ function App() {
           });
           setSearchResults(updatedSearchResults);
         } else {
-          // Handle case where search returns an error or empty result
           setSearchResults([]);
         }
       }).catch(() => {
-        // Handle any network or API errors
         setSearchResults([]);
       });
     } else {
@@ -42,12 +38,13 @@ function App() {
 
   const handleShelfChange = (book, shelf) => {
     update(book, shelf).then(() => {
-      getAll().then((books) => {
-        setBooks(books);
+      getAll().then((updatedBooks) => {
+        setBooks(updatedBooks);
         
-        // Update shelf in search results 
         const updatedSearchResults = searchResults.map(searchBook => 
-          searchBook.id === book.id ? { ...searchBook, shelf } : searchBook
+          searchBook.id === book.id 
+            ? { ...searchBook, shelf } 
+            : searchBook
         );
         setSearchResults(updatedSearchResults);
       });
